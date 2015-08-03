@@ -14,8 +14,9 @@ function fact(n)
 end
 
 print("enter a number:")
-a = io.read("*n") -- reads a number
-print(fact(a))
+--a = io.read("*n") -- reads a number
+--print(fact(a))
+a = 2
 
 -- Local Includes
 dofile("lib1.lua")
@@ -54,4 +55,91 @@ end
 
 print(2^3^4)
 print(2^-3^4)
+
+function CalcPolynomial(poly, xValue)
+	result = 0
+	for i = 1, #poly do
+		result = result + poly[i] * (xValue^(i-1))
+	end
+	print(result)
+end
+
+function CalcPolynomial2(poly, xValue)
+	result = 0
+	for i = 1, #poly do
+		xCalc = 1
+		for j = 1, (i - 1) do
+			xCalc = xCalc * xValue
+		end
+		result = result + poly[i] * xCalc
+	end
+	print(result)
+end
+
+poly = {5, 3, 2}
+xValue = 2
+
+CalcPolynomial(poly, xValue)
+CalcPolynomial2(poly, xValue)
+
+
+
+bCheck = 10
+
+if( (bCheck == true) or (bCheck == false)) then
+	print("True")
+else
+	print("False")
+end
+
+
+Sunday = "Monday"; Monday = "SundayMon"
+t = {Sunday = "Monday", [Sunday] = Monday}
+print(t.Sunday, t[Sunday], t[t.Sunday])
+
+
+function AddToTable(Table, sequence, meaning)
+	Table[#Table + 1] = sequence
+	Table[sequence] = meaning
+end
+
+function PrintTable(Table)
+	for i = 1, #Table do
+		print(Table[i], Table[Table[i]])
+	end
+end
+
+TableD = {apples = 10}
+AddToTable(TableD, "/b", "Backspace");
+AddToTable(TableD, "/r", "Return");
+AddToTable(TableD, "/n", "New Line");
+
+PrintTable(TableD)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
