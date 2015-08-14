@@ -116,13 +116,40 @@ AddToTable(TableD, "/n", "New Line");
 
 PrintTable(TableD)
 
+t = {t = 1, g = 5, f = 6}
+
+for k, v in pairs(t) do
+	print(k, v)
+end
+
+function add(...)
+local s = 0;
+for i, v in ipairs{...} do
+s = s+v
+end
+return s
+end
+print(add(3, 4, 10, 25,12))
 
 
 
+function newCounter ()
+	local i = 0
+	return function()
+		i = i+ 1
+		return i
+	end
+end
 
+c1 = newCounter()
+c2 = newCounter()
+print(c1())
+print(c1())
+print(c1())
 
-
-
+print(c2())
+print(c2())
+print(c2())
 
 
 
