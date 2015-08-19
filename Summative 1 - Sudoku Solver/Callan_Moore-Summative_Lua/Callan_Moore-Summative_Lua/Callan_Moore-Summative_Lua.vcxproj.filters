@@ -52,7 +52,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ASTAR - Callan Moore.rc">
+    <None Include="Sudoku Algorithm.lua">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Sudoku Solver - Callan Moore.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

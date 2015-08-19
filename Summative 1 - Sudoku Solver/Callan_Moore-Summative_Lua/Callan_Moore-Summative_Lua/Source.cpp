@@ -15,7 +15,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #ifdef _DEBUG
-//#include <vld.h>
+#include <vld.h>
 #endif // _DEBUG
 
 // Library Includes
@@ -32,6 +32,9 @@
 
 // Prototypes
 LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _msg, WPARAM _wParam, LPARAM _lParam);
+
+// Global Variables
+FILE* g_file;
 
 /***********************
 * WindowProc: Process the window
@@ -128,7 +131,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Pathfinder
+				// Change Placement Mode to Number 1
 				CGame::GetInstance().ChangePlaceMode(IMAGE_1);
 			}
 		}
@@ -138,7 +141,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Destination
+				// Change Placement Mode to Number 2
 				CGame::GetInstance().ChangePlaceMode(IMAGE_2);
 			}
 		}
@@ -148,7 +151,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 3
 				CGame::GetInstance().ChangePlaceMode(IMAGE_3);
 			}
 		}
@@ -158,7 +161,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 4
 				CGame::GetInstance().ChangePlaceMode(IMAGE_4);
 			}
 		}
@@ -168,7 +171,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 5
 				CGame::GetInstance().ChangePlaceMode(IMAGE_5);
 			}
 		}
@@ -178,7 +181,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 6
 				CGame::GetInstance().ChangePlaceMode(IMAGE_6);
 			}
 		}
@@ -188,7 +191,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 7
 				CGame::GetInstance().ChangePlaceMode(IMAGE_7);
 			}
 		}
@@ -198,7 +201,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 8
 				CGame::GetInstance().ChangePlaceMode(IMAGE_8);
 			}
 		}
@@ -208,7 +211,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
-				// Change Placement Mode to Wall
+				// Change Placement Mode to Number 9
 				CGame::GetInstance().ChangePlaceMode(IMAGE_9);
 			}
 		}
@@ -218,6 +221,15 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 			if (((_lParam >> 30) & 1) != 1)
 			{
 				CGame::GetInstance().SolveSudoku();
+			}
+		}
+			break;
+		case 'R':	// Fall through
+		case 'r':
+		{
+			if (((_lParam >> 30) & 1) != 1)
+			{
+				CGame::GetInstance().ResetSudokuGrid();
 			}
 		}
 			break;
@@ -238,7 +250,7 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 }
 
 /***********************
-* WinMain: Initialises the program to start and creates the window
+* WinMain: Initializes the program to start and creates the window
 * @author: Callan Moore
 * @Parameter: _hInstance: Instance handle that Windows generates for your application
 * @Parameter: _hPrevInstance: Tracker for the previous instance for the application
@@ -248,6 +260,15 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 ********************/
 int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, LPSTR _lpCmdLine, int _nCmdShow)
 {
+	// Create a Console window
+	if (AllocConsole())
+	{
+		freopen_s(&g_file, "conout$", "w", stdout);
+		HWND hWnd = GetConsoleWindow();
+		ShowWindow(hWnd, 1);
+	}
+
+
 	WNDCLASSEX winClass;	// This will hold the class we create.
 	HWND hWnd;				// Generic window handle.
 	MSG uiMsg;				// Generic message.
@@ -277,7 +298,7 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, LPSTR _lpCmdL
 
 	hWnd = CreateWindowEx(NULL,				// Extended style.
 		WINDOW_CLASS_NAME,					// Class.
-		L"ASTAR - AI",						// Title.
+		L"Sudoku Solver",					// Title.
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		0, 0,								// Initial x,y position for the top left corner of the window
 		kiScreenWidth, kiScreenHeight,		// Initial width, height of the window

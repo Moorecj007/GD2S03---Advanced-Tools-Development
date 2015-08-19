@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by ASTAR - Callan Moore.rc
+// Used by Sudoku Solver - Callan Moore.rc
 //
 #define IDB_BLANK                       101
 #define IDB_1                           102

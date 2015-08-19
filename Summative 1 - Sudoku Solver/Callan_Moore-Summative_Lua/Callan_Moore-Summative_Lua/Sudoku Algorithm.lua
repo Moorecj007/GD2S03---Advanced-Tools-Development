@@ -32,7 +32,7 @@ local function RowNumExists(sudoku, row, num)
 end
 
 ---------------------------
--- RowNumExists: Check if a number already exists in a Column
+-- ColNumExists: Check if a number already exists in a Column
 -- @author: Callan Moore
 -- @parameter: sudoku: 2D table of numbers (Sudoku Puzzle)
 -- @parameter: col: Current column index
@@ -197,6 +197,30 @@ local function Solve(sudoku)
 	return false, sudoku;
 end
 
+
+local function CheckValidity(sudoku)
+
+	for row = 1, 9 do
+		for col = 1, 9 do
+
+			tempStore = sudoku[row][col];
+			sudoku[row][col] = 0;
+
+			if( tempStore ~= 0) then
+				if (CanBeAssigned(sudoku, row, col, tempStore)) then
+					sudoku[row][col] = tempStore;
+				else
+					sudoku[row][col] = tempStore;
+					return false;
+				end
+			end
+		end
+	end
+
+	return true;
+end
+
+
 ---------------------------
 -- BeginSolving: Begins the SOlving of the sudoku
 -- @author: Callan Moore
@@ -205,45 +229,41 @@ end
 --------------------
 function BeginSolving(sudoku_1D)
 
-	sudoku_2D = ConvertTo2D(sudoku_1D)
+	sudoku_2D = ConvertTo2D(sudoku_1D);
 
-	solved, sudoku_2D = Solve(sudoku_2D);
+	valid = CheckValidity(sudoku_2D);
+
+	if (valid) then
+		solved, sudoku_2D = Solve(sudoku_2D);
+	else
+		solved = false;
+	end
+
 
 	sudoku_1D = ConvertTo1D(sudoku_2D);
-	return sudoku_1D;
+	return solved, sudoku_1D;
 end
 
 print("priming Run");
 
 --[[
-row1 = {2,4,0,  3,0,0,  0,0,0 };
-row2 = {0,0,0,  5,2,0,  4,0,7 };
-row3 = {0,0,0,  0,4,6,  0,0,8 };
+tab = {	2,4,1,  3,0,0,  0,0,0,
+		0,0,0,  5,2,0,  4,0,7,
+		0,0,0,  0,4,6,  0,0,8,
 
-row4 = {6,1,0,  7,0,0,  0,8,4 };
-row5 = {0,0,9,  0,6,0,  5,0,0 };
-row6 = {7,3,0,  0,0,5,  0,6,1 };
+		6,1,0,  7,0,0,  0,8,4,
+		0,0,9,  0,6,0,  5,0,0,
+		7,3,0,  0,0,5,  0,6,1,
 
-row7 = {1,0,0,  4,7,0,  0,0,0 };
-row8 = {3,0,2,  0,5,1,  0,0,0 };
-row9 = {0,0,0,  0,0,2,  0,1,9 };
-
-tab = {}
-tab[1] = row1;
-tab[2] = row2;
-tab[3] = row3;
-
-tab[4] = row4;
-tab[5] = row5;
-tab[6] = row6;
-
-tab[7] = row7;
-tab[8] = row8;
-tab[9] = row9;
+		1,0,0,  4,7,0,  0,0,0,
+		3,0,2,  0,5,1,  0,0,0,
+		0,0,0,  0,0,2,  0,1,9 };
 
 
-solved = Solve(tab);
+solved, tab = BeginSolving(tab);
 print(solved);
+
+tab = ConvertTo2D(tab);
 
 str = "";
 

@@ -41,11 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Users\Callan.moore\AppData\Local\Lua 5.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Users\Callan.moore\AppData\Local\Lua 5.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Libraries\Lua5.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)Libraries\Lua5.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir)Libraries\Lua5.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)Libraries\Lua5.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,7 +97,10 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ASTAR - Callan Moore.rc" />
+    <ResourceCompile Include="Sudoku Solver - Callan Moore.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sudoku Algorithm.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

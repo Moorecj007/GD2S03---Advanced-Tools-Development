@@ -68,6 +68,8 @@ public:
 	void retError(lua_State* _env, std::string _msg);
 	void RetrieveSudokuGUI(int** _sudoku);
 	void PlaceSudokuGUI(int** _sudoku);
+	void ResetSudokuGrid();
+	void StackDump(lua_State* _pLuaEnv);
 
 	// TO DO - delete
 	void tempPlace();
