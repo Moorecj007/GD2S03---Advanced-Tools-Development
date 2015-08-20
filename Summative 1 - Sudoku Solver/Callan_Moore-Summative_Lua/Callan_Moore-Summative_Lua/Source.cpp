@@ -233,11 +233,21 @@ LRESULT CALLBACK WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lPa
 			}
 		}
 			break;
+		case VK_F2:	// TO DO
+		{
+			if (((_lParam >> 30) & 1) != 1)
+			{
+				CGame::GetInstance().ResetSudokuGrid();
+				CGame::GetInstance().GenerateSudoku();
+			}
+		}
+			break;
 		// TO DO - delete
 		case VK_F1:
 		{
 			if (((_lParam >> 30) & 1) != 1)
 			{
+				CGame::GetInstance().ResetSudokuGrid();
 				CGame::GetInstance().tempPlace();
 			}
 		}

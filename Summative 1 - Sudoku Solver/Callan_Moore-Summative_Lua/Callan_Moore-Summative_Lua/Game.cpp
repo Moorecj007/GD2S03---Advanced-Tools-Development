@@ -70,6 +70,11 @@ CGame::~CGame()
 	// Delete the GameTile Grid
 	delete m_pVecGameTiles;
 	m_pVecGameTiles = 0;
+
+	if (m_pLuaState != 0)
+	{
+		lua_close(m_pLuaState);
+	}
 }
 
 /***********************
@@ -185,6 +190,8 @@ void CGame::Initialize(HINSTANCE _hInstance, HWND _hWnd, int _iScreenWidth, int 
 		}
 		iTileX += m_iTileSize;
 	}
+
+	InitialiseLua();
 }
 
 /***********************
@@ -481,6 +488,7 @@ void CGame::TextOutput()
 	TextOutA(m_pBackBuffer->GetBFDC(), 10, 855, strSolve.c_str(), strSolve.size());
 }
 
+// TO DO
 void CGame::tempPlace()
 {
 	int* sudoku_2D[9];
@@ -512,6 +520,46 @@ void CGame::tempPlace()
 	PlaceSudokuGUI(sudoku_2D);
 }
 
+// TO DO
+void CGame::InitialiseLua()
+{
+	m_pLuaState = luaL_newstate();
+
+	// Load the Lua libraries
+	luaL_openlibs(m_pLuaState);
+
+	// Load the lua script (but do NOT run it)
+	luaL_loadfile(m_pLuaState, "Sudoku Algorithm.lua");
+}
+
+// TO DO
+void CGame::ConvertTo2D(int* _sudoku1D, int** _sudoku2D)
+{
+	// Convert back to a 2D array
+	int index = 0;
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			_sudoku2D[i][j] = _sudoku1D[index++];
+		}
+	}
+}
+
+// TO DO
+void CGame::ConvertTo1D(int** _sudoku2D, int* _sudoku1D)
+{
+	// Convert to 1D array
+	int index = 0;
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			_sudoku1D[index++] = _sudoku2D[i][j];
+		}
+	}
+}
+
 /***********************
 * SolveSudoku: Solve the Sudoku
 * @author: Callan Moore
@@ -531,47 +579,27 @@ void CGame::SolveSudoku()
 
 	RetrieveSudokuGUI(sudoku_2D);
 
-	// Convert to 1D array
-	int index = 0;
-	for (int i = 0; i < 9; i++)
-	{
-		for (int j = 0; j < 9; j++)
-		{
-			sudoku_1D[index++] = sudoku_2D[i][j];
-		}
-	}
-
-	lua_State* pLuaEnv;
-	pLuaEnv = luaL_newstate();
-
-	// Load the Lua libraries
-	luaL_openlibs(pLuaEnv);
-
-	// Load the lua script (but do NOT run it)
-	luaL_loadfile(pLuaEnv, "Sudoku Algorithm.lua");
-
+	ConvertTo1D(sudoku_2D, sudoku_1D);
 
 	// Prime the lua environment
-	lua_pcall(pLuaEnv, 0, 0, 0);
+	lua_pcall(m_pLuaState, 0, 0, 0);
 
-	lua_getglobal(pLuaEnv, "BeginSolving");
-	lua_newtable(pLuaEnv);
+	lua_getglobal(m_pLuaState, "BeginSolving");
+	lua_newtable(m_pLuaState);
 
 	// Add the Sudoku 1D table to the stack for use in Lua
 	for (int i = 1; i < sizeof(sudoku_1D) / sizeof(*sudoku_1D) + 1; i++)
 	{
-		lua_pushinteger(pLuaEnv, i);
-		lua_pushinteger(pLuaEnv, sudoku_1D[i - 1]);
-		lua_settable(pLuaEnv, -3);
+		lua_pushinteger(m_pLuaState, i);
+		lua_pushinteger(m_pLuaState, sudoku_1D[i - 1]);
+		lua_settable(m_pLuaState, -3);
 	}
 
 	// Call the Lua function
-	lua_pcall(pLuaEnv, 1, 2, 0);
-
-	StackDump(pLuaEnv);
+	lua_pcall(m_pLuaState, 1, 2, 0);
 
 	// Retrieve the boolean for if the puzzle was solvable
-	int solved = lua_toboolean(pLuaEnv, 1);
+	int solved = lua_toboolean(m_pLuaState, 1);
 	
 	// Create a string for the Solve status
 	if (solved == 0)
@@ -584,26 +612,18 @@ void CGame::SolveSudoku()
 	}
 
 	int value = 0;
-	index = 0;
-	lua_pushnil(pLuaEnv);
+	int index = 0;
+	lua_pushnil(m_pLuaState);
 	// Retrieve all table elements in a 1D array
-	while (lua_next(pLuaEnv, -2)) {
-		value = (int)lua_tonumber(pLuaEnv, -1);
-		lua_pop(pLuaEnv, 1);
-		index = (int)lua_tonumber(pLuaEnv, -1);
+	while (lua_next(m_pLuaState, -2)) {
+		value = (int)lua_tonumber(m_pLuaState, -1);
+		lua_pop(m_pLuaState, 1);
+		index = (int)lua_tonumber(m_pLuaState, -1);
 
 		sudoku_1D[index - 1] = value;
 	}
 
-	// Convert back to a 2D array
-	index = 0;
-	for (int i = 0; i < 9; i++)
-	{
-		for (int j = 0; j < 9; j++)
-		{
-			sudoku_2D[i][j] = sudoku_1D[index++];
-		}
-	}
+	ConvertTo2D(sudoku_1D, sudoku_2D);
 
 	PlaceSudokuGUI(sudoku_2D);
 
@@ -613,7 +633,8 @@ void CGame::SolveSudoku()
 		delete[] sudoku_2D[i];
 	}
 
-	lua_close(pLuaEnv);
+	// Reset the stack pointer
+	lua_settop(m_pLuaState, 0);
 }
 
 /***********************
@@ -668,34 +689,102 @@ void CGame::ResetSudokuGrid()
 	m_strSolveStatus = "UNSOLVED";
 }
 
-void CGame::StackDump(lua_State* _pLuaEnv)
+/***********************
+* GenerateSudoku: all upon Lua to generate a solvable sudoku puzzle
+* @author: Callan Moore
+* @return: void
+********************/
+void CGame::GenerateSudoku()
 {
-	int iTopIndex = lua_gettop(_pLuaEnv);
+	int sudoku_1D[81];
+	int* sudoku_2D[9];
+
+	// Create a 2D array for the sudoku grid
+	for (int i = 0; i < 9; i++)
+	{
+		int* row = new int[9];
+		sudoku_2D[i] = row;
+	}
+
+	// Prime the lua environment
+	lua_pcall(m_pLuaState, 0, 0, 0);
+
+	lua_getglobal(m_pLuaState, "GenerateSudoku");
+	lua_newtable(m_pLuaState);
+
+	// Add the Sudoku 1D table to the stack for use in Lua
+	for (int i = 1; i < sizeof(sudoku_1D) / sizeof(*sudoku_1D) + 1; i++)
+	{
+		lua_pushinteger(m_pLuaState, i);
+		lua_pushinteger(m_pLuaState, sudoku_1D[i - 1]);
+		lua_settable(m_pLuaState, -3);
+	}
+
+	// Call the Lua function
+	lua_pcall(m_pLuaState, 1, 1, 0);
+	
+	StackDump(m_pLuaState);
+
+	int value = 0;
+	int index = 0;
+	lua_pushnil(m_pLuaState);
+	// Retrieve all table elements in a 1D array
+	while (lua_next(m_pLuaState, -2)) {
+		value = (int)lua_tonumber(m_pLuaState, -1);
+		lua_pop(m_pLuaState, 1);
+		index = (int)lua_tonumber(m_pLuaState, -1);
+
+		sudoku_1D[index - 1] = value;
+	}
+
+	ConvertTo2D(sudoku_1D, sudoku_2D);
+
+	PlaceSudokuGUI(sudoku_2D);
+
+	// Delete the allocated memory
+	for (int i = 0; i < 9; i++)
+	{
+		delete[] sudoku_2D[i];
+	}
+
+	// Reset the stack pointer
+	lua_settop(m_pLuaState, 0);
+}
+
+/***********************
+* StackDump: Creates a Stack dump in the console window of the lua stack
+* @author: Callan Moore
+* @parameter: _pLuaState: The current Lua State
+* @return: void
+********************/
+void CGame::StackDump(lua_State* _pLuaState)
+{
+	int iTopIndex = lua_gettop(_pLuaState);
 
 	for (int i = 1; i <= iTopIndex; i++)
 	{
-		int iType = lua_type(_pLuaEnv, i);
+		int iType = lua_type(_pLuaState, i);
 
 		switch (iType)
 		{
 			case LUA_TSTRING:  // strings 
 			{
-				printf("`%s'", lua_tostring(_pLuaEnv, i));
+				printf("`%s'", lua_tostring(_pLuaState, i));
 			}
 			break;
 			case LUA_TBOOLEAN:  // booleans
 			{
-				printf(lua_toboolean(_pLuaEnv, i) ? "true" : "false");
+				printf(lua_toboolean(_pLuaState, i) ? "true" : "false");
 			}
 			break;
 			case LUA_TNUMBER:  // numbers
 			{
-				printf("%g", lua_tonumber(_pLuaEnv, i));
+				printf("%g", lua_tonumber(_pLuaState, i));
 			}
 			break;
 			default:  // other values
 			{
-				printf("%s", lua_typename(_pLuaEnv, iType));
+				printf("%s", lua_typename(_pLuaState, iType));
 			}
 			break;
 		}

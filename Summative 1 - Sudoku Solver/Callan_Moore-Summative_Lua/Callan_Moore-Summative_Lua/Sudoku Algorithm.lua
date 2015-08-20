@@ -197,7 +197,12 @@ local function Solve(sudoku)
 	return false, sudoku;
 end
 
-
+---------------------------
+-- CheckValidity: Checks that the sudoku is a valid sudoku
+-- @author: Callan Moore
+-- @parameter: sudoku: 2D table of numbers (Sudoku Puzzle)
+-- @return: bool: True if the sudoku is valid
+--------------------
 local function CheckValidity(sudoku)
 
 	for row = 1, 9 do
@@ -220,9 +225,8 @@ local function CheckValidity(sudoku)
 	return true;
 end
 
-
 ---------------------------
--- BeginSolving: Begins the SOlving of the sudoku
+-- BeginSolving: Begins the Solving of the sudoku
 -- @author: Callan Moore
 -- @parameter: sudoku: 1D table of numbers (Sudoku Puzzle)
 -- @return: table: A 1D representation of the sudoku puzzle
@@ -233,15 +237,56 @@ function BeginSolving(sudoku_1D)
 
 	valid = CheckValidity(sudoku_2D);
 
-	if (valid) then
+	if (valid == true) then
 		solved, sudoku_2D = Solve(sudoku_2D);
 	else
 		solved = false;
 	end
 
-
 	sudoku_1D = ConvertTo1D(sudoku_2D);
 	return solved, sudoku_1D;
+end
+
+---------------------------
+-- GenerateSudoku: Generate a solvable sudoku puzzle
+-- @author: Callan Moore
+-- @parameter: sudoku: 1D table of numbers (Sudoku Puzzle)
+-- @return: table: A 1D representation of the sudoku puzzle
+--------------------
+function GenerateSudoku(sudoku_1D)
+	
+	sudoku_2D = ConvertTo2D(sudoku_1D);
+
+	math.randomseed(1234);
+
+	tabRow = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	tabCol = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+	for i = 1, 9 do
+		index = math.random(#tabRow);
+
+		sudoku_2D[i][1] = tabRow.remove(index);
+	end
+
+	tabCol.remove(sudoku_2D[1][1]);
+
+	for i = 1, 8 do
+
+		index = math.random(#tabCol);
+		temp = tabCol[index];
+
+		while( BoxNumExists(sudoku_2D, 1, i, temp) == false) do
+			
+			index = math.random(#tabCol);
+			temp = tabCol[index];
+		end
+
+		sudoku_2D[1][i] = temp;
+		tabRow.remove(1);
+	end
+
+	sudoku_1D = ConvertTo1D(sudoku_2D);
+	return sudoku_1D;
 end
 
 print("priming Run");
@@ -258,6 +303,16 @@ tab = {	2,4,1,  3,0,0,  0,0,0,
 		1,0,0,  4,7,0,  0,0,0,
 		3,0,2,  0,5,1,  0,0,0,
 		0,0,0,  0,0,2,  0,1,9 };
+
+		tab = {  0, 0, 0, 0, 3, 0, 7, 9, 0,
+		   3, 0, 0, 0, 0, 0, 0, 0, 5,
+		   0, 0, 0, 4, 0, 7, 3, 0, 6,
+		   0, 5, 3, 0, 9, 4, 0, 7, 0,
+		   0, 0, 0, 0, 7, 0, 0, 0, 0,
+		   0, 1, 0, 8, 2, 0, 6, 4, 0,
+		   7, 0, 1, 9, 0, 8, 0, 0, 0,
+		   8, 0, 0, 0, 0, 0, 0, 0, 1,
+		   0, 9, 4, 0, 1, 0, 0, 0, 0  }
 
 
 solved, tab = BeginSolving(tab);

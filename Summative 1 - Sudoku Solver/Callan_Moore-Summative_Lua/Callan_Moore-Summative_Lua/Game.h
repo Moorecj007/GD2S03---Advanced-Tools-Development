@@ -64,11 +64,16 @@ public:
 	void Reset();
 	void TextOutput();
 
+	void InitialiseLua();
+
+	void ConvertTo2D(int* _sudoku1D, int** _sudoku2D);
+	void ConvertTo1D(int** _sudoku2D, int* _sudoku1D);
+
 	void SolveSudoku();
-	void retError(lua_State* _env, std::string _msg);
 	void RetrieveSudokuGUI(int** _sudoku);
 	void PlaceSudokuGUI(int** _sudoku);
 	void ResetSudokuGrid();
+	void GenerateSudoku();
 	void StackDump(lua_State* _pLuaEnv);
 
 	// TO DO - delete
@@ -100,6 +105,7 @@ private:
 	eImage m_PlaceMode;
 	eImage m_OldImage;
 	std::string m_strSolveStatus;
+	lua_State* m_pLuaState;
 
 	HWND m_hWnd;
 	HINSTANCE m_hInstance;
